@@ -1,0 +1,78 @@
+mat4<type>::MINOR(const mat4<type>& m, int r0, int r1, int r2, int c0, int c1, int c2)
+{//用作求取伴随矩阵
+    return type(    m[r0][c0] *(m[r1][c1] * m[r2][c2] - m[r2][c1] * m[r1][c2]) -
+                    m[r0][c1] *(m[r1][c0] * m[r2][c2] - m[r2][c0] * m[r1][c2]) +
+                    m[r0][c2] *(m[r1][c0] * m[r2][c1] - m[r2][c0] * m[r1][c1]) );
+}
+
+mat4<type>::adjoint()
+{//伴随矩阵
+    return mat4(MINOR(*this, 1, 2, 3, 1, 2, 3),
+                -MINOR(*this, 0, 2, 3, 1, 2, 3),
+                MINOR(*this, 0, 1, 3, 1, 2, 3),
+                -MINOR(*this, 0, 1, 2, 1, 2, 3),
+
+                -MINOR(*this, 1, 2, 3, 0, 2, 3),
+                MINOR(*this, 0, 2, 3, 0, 2, 3),
+                -MINOR(*this, 0, 1, 3, 0, 2, 3),
+                MINOR(*this, 0, 1, 2, 0, 2, 3),
+
+                MINOR(*this, 1, 2, 3, 0, 1, 3),
+                -MINOR(*this, 0, 2, 3, 0, 1, 3),
+                MINOR(*this, 0, 1, 3, 0, 1, 3),
+                -MINOR(*this, 0, 1, 2, 0, 1, 3),
+
+                -MINOR(*this, 1, 2, 3, 0, 1, 2),
+                MINOR(*this, 0, 2, 3, 0, 1, 2),
+                -MINOR(*this, 0, 1, 3, 0, 1, 2),
+                MINOR(*this, 0, 1, 2, 0, 1, 2));
+}
+
+mat4<type>::determinant() const
+{//行列式
+    return (type)(    m[0][0] * MINOR(*this, 1, 2, 3, 1, 2, 3) -
+                    m[0][1] * MINOR(*this, 1, 2, 3, 0, 2, 3) +
+                    m[0][2] * MINOR(*this, 1, 2, 3, 0, 1, 3) -
+                    m[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2) );
+}
+
+mat4<type>::inverse()
+{//逆
+    return adjoint() * (1.0f / determinant());
+}
+
+mat4<type>::translate(const vec3<type> &v)
+{//平移
+    return mat4<type>(1, 0, 0, v.x,
+                      0, 1, 0, v.y,
+                      0, 0, 1, v.z,
+                      0, 0, 0, 1);
+}
+
+mat4<type>::rotatex(type angle)
+{//绕x轴旋转
+    type ca = (type) cos(angle * M_PI / 180.0);
+    type sa = (type) sin(angle * M_PI / 180.0);
+    return mat4<type>(1, 0, 0, 0,
+                      0, ca, -sa, 0,
+                      0, sa, ca, 0,
+                      0, 0, 0, 1);
+}
+mat4<type>::rotatey(type angle)
+{//绕y轴旋转
+    type ca = (type) cos(angle * M_PI / 180.0);
+    type sa = (type) sin(angle * M_PI / 180.0);
+    return mat4<type>(ca, 0, sa, 0,
+                      0, 1, 0, 0,
+                      -sa, 0, ca, 0,
+                      0, 0, 0, 1);
+}
+mat4<type>::rotatez(type angle)
+{//绕z轴旋转
+    type ca = (type) cos(angle * M_PI / 180.0);
+    type sa = (type) sin(angle * M_PI / 180.0);
+    return mat4<type>(ca, -sa, 0, 0,
+                      sa, ca, 0, 0,
+                      0, 0, 1, 0,
+                      0, 0, 0, 1);
+}
